@@ -1,90 +1,53 @@
 import React, { useState } from 'react';
-import './App.css';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Header from './components/Header.jsx';
-import Bid from './components/Bid.jsx';
-import Events from './components/Events.jsx'
-import Hackathon from './assets/AI.jpg';
-import Intellectual from './assets/Inte.jpg';
-
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Events from './components/Events.jsx';
+import InputForm from './components/InputForm.jsx';
+import Homepage from './pages/Homepage.jsx';
+import Sidebar from './components/Sidebar.jsx';
+import DynamicGreeting from './components/DynamicGreeting.jsx';
+import SavedEvents from './pages/SavedEvents.jsx'
+import Yiliba from './pages/Yiliba.jsx'
 
 function App() {
-  const [name, setName] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [savedEvents, setSavedEvents] = useState([]);
+  const [name, setName] = useState(""); 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-  };
-  function dynamicGreeting() {
-    const hours = new Date().getHours();
-    if (hours < 12) {
-      return 'Good morning';
-    } else if (hours < 18) {
-      return 'Good afternoon';
-    } else {
-      return 'Good evening';
-    }
-  }
-   
-  // Function to save events
   const handleSaveEvent = (event) => {
-    console.log("Received event in App:", event);
-    setSavedEvents((prevEvents) => {
-      const updatedEvents=[...prevEvents, event];
-      console.log("Updated saved events:", updatedEvents);
-      return updatedEvents;
-    });
+    setSavedEvents((prevEvents) => [...prevEvents, event]);
   };
 
   return (
     <Router>
-      <div className="App">
-        <Header className="mb-6" />
+      <div className="flex h-screen bg-gray-400 overflow-hidden" >
+        {/*Sidebar div always visible on everypage*/}
+        <div className="w-1/4 min-w-[250px]">
+        <Sidebar />
+        </div>
+
+        {/*Div to render the other pages*/}
+        <div className="w-3/4 overflow-y-auto p-6 md:p-10">
         <Routes>
-          {/* Home Route */}
           <Route
             path="/"
             element={
               !isSubmitted ? (
-                <div className="flex flex-col items-center justify-center min-h-screen">
-                  <form onSubmit={handleSubmit} className="flex flex-col items-center">
-                    <input
-                      type="text"
-                      placeholder="Enter your name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="border p-2 mb-4"
-                    />
-                    <button type="submit" className="p-2 bg-blue-500 text-white">
-                      Submit
-                    </button>
-                  </form>
+                <div className="rounded-lg shadow m-h-[100px] items-center justify-center p-4 m-4">
+                  <InputForm setName={setName} setIsSubmitted={setIsSubmitted} />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center min-h-screen">
-                  <p className="text-center p-4">{dynamicGreeting()}, {name}.</p>
-                  <p className="text-center text-lg font-semibold text-gray-700">
-                      Upcoming events in CoCIS
-                  </p>
-
-                  <div className='flex flex-row items-center justify-center'>
-                  <Bid img={Hackathon} name="AI Hackathon" date="15th March 2025" onSave={handleSaveEvent}/>
-                  <Bid img={Intellectual} name="Intellectual Property Talk" date="26th April 2025" onSave={handleSaveEvent}/>
-                  </div>
-
-                  <Link to="/events">
-                  <button className="mt-4 p-2 bg-green-500 text-white">View Saved Events</button>
-                </Link>
-                </div>
+                <>
+                  <DynamicGreeting name={name} className="flex justify-center items-center"/>
+                  <Homepage name={name} handleSaveEvent={handleSaveEvent} />
+                </>
               )
             }
           />
-
-          {/* Events Route */}
           <Route path="/events" element={<Events savedEvents={savedEvents} />} />
+          <Route path="/savedevents" elements={<SavedEvents/>}/>
+          <Route path="/yiliba" elements={<Yiliba/>}/>
         </Routes>
+        </div>
       </div>
     </Router>
   );
